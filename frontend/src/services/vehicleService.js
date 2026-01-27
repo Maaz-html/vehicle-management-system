@@ -1,5 +1,7 @@
 import api from './api';
 
+/* ===================== VEHICLES ===================== */
+
 export const getAllVehicles = async (params = {}) => {
     const response = await api.get('/vehicles', { params });
     return response.data;
@@ -30,20 +32,16 @@ export const getPaymentSummary = async () => {
     return response.data;
 };
 
-// Document services
-export const uploadDocuments = async (vehicleId, files) => {
-    const formData = new FormData();
-    formData.append('vehicle_id', vehicleId);
+/* ===================== DOCUMENTS ===================== */
 
-    Array.from(files).forEach((file) => {
-        formData.append('documents', file);
-    });
-
-    const response = await api.post('/documents/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+/**
+ * Upload documents (expects FormData)
+ * FormData must contain:
+ * - vehicle_id
+ * - documents[]
+ */
+export const uploadDocuments = async (formData) => {
+    const response = await api.post('/documents', formData);
     return response.data;
 };
 
@@ -52,11 +50,12 @@ export const getDocumentsByVehicle = async (vehicleId) => {
     return response.data;
 };
 
-export const downloadDocument = async (id) => {
-    window.open(`http://localhost:5000/api/documents/${id}/download`, '_blank');
-};
-
 export const deleteDocument = async (id) => {
     const response = await api.delete(`/documents/${id}`);
     return response.data;
+};
+
+export const downloadDocument = (id) => {
+    // Uses same baseURL from api.js (NO localhost)
+    window.open(`${import.meta.env.VITE_API_URL}/documents/${id}/download`, '_blank');
 };
