@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import config from '../config';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ const Login = () => {
         e.preventDefault();
         try {
             // Check if we are in development or production for the API URL
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const apiUrl = config.API_URL;
 
             const response = await axios.post(`${apiUrl}/auth/login`, formData);
 

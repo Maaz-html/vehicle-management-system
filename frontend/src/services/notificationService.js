@@ -1,20 +1,14 @@
-import axios from 'axios';
-
-// While we implemented the logic directly in the component for simplicity, 
-// a service file is good practice for larger apps.
-// We can move the axios calls here if needed in the future.
+import api from './api';
 
 export const fetchNotifications = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get('http://localhost:5000/api/notifications', {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await api.get('/notifications');
     return response.data;
 };
 
 export const markAsRead = async (id) => {
-    const token = localStorage.getItem('token');
-    await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    await api.put(`/notifications/${id}/read`);
+};
+
+export const markAllAsRead = async () => {
+    await api.put('/notifications/read-all');
 };

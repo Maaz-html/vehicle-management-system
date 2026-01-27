@@ -1,11 +1,9 @@
-import axios from 'axios';
+import api from '../services/api';
 
 const InvoiceButton = ({ vehicleId }) => {
     const handleDownload = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/invoices/${vehicleId}`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await api.get(`/invoices/${vehicleId}`, {
                 responseType: 'blob',
             });
 

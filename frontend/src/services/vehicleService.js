@@ -1,4 +1,5 @@
 import api from './api';
+import config from '../config';
 
 /* ===================== VEHICLES ===================== */
 
@@ -56,6 +57,6 @@ export const deleteDocument = async (id) => {
 };
 
 export const downloadDocument = (id) => {
-    // Uses same baseURL from api.js (NO localhost)
-    window.open(`${import.meta.env.VITE_API_URL}/documents/${id}/download`, '_blank');
+    // Uses config.API_URL
+    window.open(`${config.API_URL}/documents/${id}/download`, '_blank');
 };

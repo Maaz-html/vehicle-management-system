@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
     getDocumentsByVehicle,
-    uploadDocuments,
-    downloadDocument,
     deleteDocument
 } from '../services/vehicleService';
+import config from '../config';
 
 const DocumentUploader = ({ vehicleId }) => {
     const [documents, setDocuments] = useState([]);
@@ -69,6 +68,13 @@ const DocumentUploader = ({ vehicleId }) => {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    };
+
+    const getFileUrl = (filePath) => {
+        if (!filePath) return '';
+        // Remove /api from the end of API_URL to get base URL
+        const baseUrl = config.API_URL.replace(/\/api$/, '');
+        return `${baseUrl}/uploads/${filePath}`;
     };
 
     const [previewDoc, setPreviewDoc] = useState(null);
@@ -148,7 +154,7 @@ const DocumentUploader = ({ vehicleId }) => {
                                         </svg>
                                     </button>
                                     <button
-                                        onClick={() => window.open(doc.url, '_blank')}
+                                        onClick={() => window.open(getFileUrl(doc.file_path), '_blank')}
                                         className="text-blue-600 hover:text-blue-800"
                                         title="Download"
                                     >
@@ -186,13 +192,13 @@ const DocumentUploader = ({ vehicleId }) => {
                         </div>
                         <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
                             {previewDoc.original_filename?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                <img src={previewDoc.url} alt="Preview" className="max-w-full max-h-full object-contain" />
+                                <img src={getFileUrl(previewDoc.file_path)} alt="Preview" className="max-w-full max-h-full object-contain" />
                             ) : previewDoc.original_filename?.match(/\.pdf$/i) ? (
-                                <iframe src={previewDoc.url} className="w-full h-[60vh]" title="PDF Preview"></iframe>
+                                <iframe src={getFileUrl(previewDoc.file_path)} className="w-full h-[60vh]" title="PDF Preview"></iframe>
                             ) : (
                                 <div className="text-center">
                                     <p className="mb-4 text-gray-600">Preview not available for this file type.</p>
-                                    <button onClick={() => window.open(previewDoc.url, '_blank')} className="btn btn-primary">
+                                    <button onClick={() => window.open(getFileUrl(previewDoc.file_path), '_blank')} className="btn btn-primary">
                                         Download to View
                                     </button>
                                 </div>

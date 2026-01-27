@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { fetchNotifications as getNotifications, markAsRead as markRead, markAllAsRead } from '../services/notificationService';
 
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
@@ -10,9 +10,9 @@ const NotificationBell = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchNotifications();
+        loadNotifications();
         // Poll every 30 seconds
-        const interval = setInterval(fetchNotifications, 30000);
+        const interval = setInterval(loadNotifications, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -26,47 +26,36 @@ const NotificationBell = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const fetchNotifications = async () => {
+    const loadNotifications = async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-
-            const response = await axios.get('http://localhost:5000/api/notifications', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setNotifications(response.data);
-            setUnreadCount(response.data.filter(n => !n.is_read).length);
+            const data = await getNotifications();
+            setNotifications(data);
+            setUnreadCount(data.filter(n => !n.is_read).length);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
     };
 
-    const markAsRead = async (id) => {
+    const handleMarkAsRead = async (id) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            fetchNotifications();
+            await markRead(id);
+            loadNotifications();
         } catch (error) {
             console.error('Error marking as read:', error);
         }
     };
 
-    const markAllRead = async () => {
+    const handleMarkAllRead = async () => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/notifications/read-all`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            fetchNotifications();
+            await markAllAsRead();
+            loadNotifications();
         } catch (error) {
             console.error('Error marking all as read:', error);
         }
     };
 
     const handleNotificationClick = (notification) => {
-        markAsRead(notification.id);
+        handleMarkAsRead(notification.id);
         setShowDropdown(false);
         if (notification.vehicle_id) {
             navigate(`/vehicles/edit/${notification.vehicle_id}`);
