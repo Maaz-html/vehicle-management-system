@@ -1,59 +1,47 @@
-import dotenv from 'dotenv';
-dotenv.config();
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+const errorHandler = require('./middleware/errorHandler');
 
-// Middleware
-import errorHandler from './middleware/errorHandler.js';
+// Import routes
+const clientRoutes = require('./routes/clients');
+const vehicleRoutes = require('./routes/vehicles');
+const documentRoutes = require('./routes/documents');
+const exportRoutes = require('./routes/export');
 
-// Routes
-import clientRoutes from './routes/clients.js';
-import vehicleRoutes from './routes/vehicles.js';
-import documentRoutes from './routes/documents.js';
-import exportRoutes from './routes/export.js';
-import authRoutes from './routes/auth.js';
-import invoiceRoutes from './routes/invoices.js';
-import notificationRoutes from './routes/notifications.js';
-
-// Init database
-import './utils/database.js';
+// Initialize database
+require('./utils/database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* ------------------ FIX __dirname ------------------ */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/* ------------------ Middleware ------------------ */
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ------------------ Uploads Directory ------------------ */
+// Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../uploads');
-
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Serve uploaded files
+// Static files
 app.use('/uploads', express.static(uploadsDir));
 
-/* ------------------ Routes ------------------ */
-app.use('/api/auth', authRoutes);
+// Routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/clients', clientRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/export', exportRoutes);
-app.use('/api/invoices', invoiceRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api/invoices', require('./routes/invoices'));
+app.use('/api/notifications', require('./routes/notifications'));
 
-/* ------------------ Health Check ------------------ */
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -61,13 +49,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-/* ------------------ Error Handler ------------------ */
+// Error handler
 app.use(errorHandler);
 
-/* ------------------ Start Server ------------------ */
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 API: http://localhost:${PORT}/api`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/api`);
 });
 
-export default app;
+module.exports = app;
