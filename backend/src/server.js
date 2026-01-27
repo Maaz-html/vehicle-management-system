@@ -1,57 +1,73 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+import dotenv from 'dotenv';
+dotenv.config();
 
-const errorHandler = require('./middleware/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-// Import routes
-const clientRoutes = require('./routes/clients');
-const vehicleRoutes = require('./routes/vehicles');
-const documentRoutes = require('./routes/documents');
-const exportRoutes = require('./routes/export');
+// Middleware
+import errorHandler from './middleware/errorHandler.js';
 
-// Initialize database
-require('./utils/database');
+// Routes
+import clientRoutes from './routes/clients.js';
+import vehicleRoutes from './routes/vehicles.js';
+import documentRoutes from './routes/documents.js';
+import exportRoutes from './routes/export.js';
+import authRoutes from './routes/auth.js';
+import invoiceRoutes from './routes/invoices.js';
+import notificationRoutes from './routes/notifications.js';
+
+// Init database
+import './utils/database.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+/* ------------------ FIX __dirname ------------------ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/* ------------------ Middleware ------------------ */
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ensure uploads directory exists
+/* ------------------ Uploads Directory ------------------ */
 const uploadsDir = path.join(__dirname, '../uploads');
+
 if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Static files (for uploaded documents)
+// Serve uploaded files
 app.use('/uploads', express.static(uploadsDir));
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
+/* ------------------ Routes ------------------ */
+app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/export', exportRoutes);
-app.use('/api/invoices', require('./routes/invoices'));
-app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Health check
+/* ------------------ Health Check ------------------ */
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Vehicle Management System API is running' });
+  res.json({
+    status: 'OK',
+    message: 'Vehicle Management System API is running'
+  });
 });
 
-// Error handler (must be last)
+/* ------------------ Error Handler ------------------ */
 app.use(errorHandler);
 
+/* ------------------ Start Server ------------------ */
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`API available at http://localhost:${PORT}/api`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 API: http://localhost:${PORT}/api`);
 });
 
-module.exports = app;
+export default app;
