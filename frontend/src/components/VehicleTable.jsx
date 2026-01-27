@@ -56,10 +56,13 @@ const VehicleTable = () => {
     };
 
     const getPaymentRowClass = (vehicle) => {
-        if (vehicle.money_paid === 0) return 'border-l-4 border-l-red-500 hover:bg-gray-50';
-        if (vehicle.money_paid < vehicle.total_charges) return 'border-l-4 border-l-orange-500 hover:bg-gray-50';
-        return 'border-l-4 border-l-green-500 hover:bg-gray-50';
-    };
+    const paid = Number(vehicle.money_paid || 0);
+    const total = Number(vehicle.total_charges || 0);
+
+    if (paid === 0) return 'border-l-4 border-l-red-500 hover:bg-gray-50';
+    if (paid < total) return 'border-l-4 border-l-orange-500 hover:bg-gray-50';
+    return 'border-l-4 border-l-green-500 hover:bg-gray-50';
+};
 
     if (loading) {
         return <div className="text-center py-8">Loading vehicles...</div>;
