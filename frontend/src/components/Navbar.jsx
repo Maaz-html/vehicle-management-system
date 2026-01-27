@@ -57,15 +57,6 @@ const Navbar = () => {
                         >
                             Clients
                         </Link>
-                        <Link
-                            to="/reports"
-                            className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/reports')
-                                ? 'bg-white text-blue-600 font-semibold'
-                                : 'hover:bg-blue-700'
-                                }`}
-                        >
-                            Reports
-                        </Link>
                     </div>
 
                     <div className="flex items-center space-x-4">

@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Vehicles from './pages/Vehicles';
 import Clients from './pages/Clients';
-import Reports from './pages/Reports';
 import AddVehicleForm from './components/AddVehicleForm';
 import Login from './pages/Login';
 
@@ -26,7 +25,6 @@ function App() {
           <Route path="/vehicles/new" element={<AddVehicleForm />} />
           <Route path="/vehicles/edit/:id" element={<AddVehicleForm />} />
           <Route path="/clients" element={<Clients />} />
-          <Route path="/reports" element={<Reports />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

@@ -11,16 +11,18 @@ import DocumentUploader from './DocumentUploader';
 import MultiSelect from './MultiSelect';
 
 const WORK_TYPE_OPTIONS = [
-    'General Service',
-    'Oil Change',
-    'Brake Repair',
-    'Engine Diagnostics',
-    'Tire Rotation',
-    'Car Wash',
-    'Detailing',
-    'Body Work',
-    'AC Repair',
-    'Battery Replacement'
+    'TR',
+    'HPTer',
+    'HPA',
+    'DRC',
+    'DRC',
+    'C/A',
+    'RRC',
+    'E-Tax',
+    'HSRP',
+    'Insurance',
+    'Mobile No. Update',
+    'NOC'
 ];
 
 const AddVehicleForm = () => {

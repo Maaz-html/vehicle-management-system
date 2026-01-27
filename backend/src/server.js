@@ -10,7 +10,6 @@ const errorHandler = require('./middleware/errorHandler');
 const clientRoutes = require('./routes/clients');
 const vehicleRoutes = require('./routes/vehicles');
 const documentRoutes = require('./routes/documents');
-const exportRoutes = require('./routes/export');
 
 // Initialize database
 require('./utils/database');
@@ -37,7 +36,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/clients', clientRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/export', exportRoutes);
 app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/notifications', require('./routes/notifications'));
 
