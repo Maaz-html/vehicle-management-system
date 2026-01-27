@@ -202,6 +202,11 @@ const VehicleTable = () => {
                                             {vehicle.process_status}
                                         </span>
                                     </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${Number(vehicle.doc_count) > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                            {vehicle.doc_count || 0}
+                                        </span>
+                                    </td>
                                     <td className="px-4 py-3 text-right font-medium">
                                         {formatMoney(vehicle.money_paid)}
                                     </td>
@@ -269,7 +274,6 @@ const VehicleTable = () => {
                         <div className="flex-1 overflow-auto p-4">
                             <DocumentUploader
                                 vehicleId={viewDocsVehicleId}
-                                readOnly={true}
                             />
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 const pool = require('../utils/database');
 const supabase = require('../utils/supabaseClient');
 
-const BUCKET_NAME = process.env.SUPABASE_BUCKET || 'Documents';
+const BUCKET_NAME = process.env.SUPABASE_BUCKET || 'DOCUMENTS';
 
 // Upload documents to Supabase Storage
 const uploadDocuments = async (req, res) => {
@@ -56,11 +56,14 @@ const uploadDocuments = async (req, res) => {
 const getDocumentsByVehicleId = async (req, res) => {
   try {
     const { vehicleId } = req.params;
+    console.log(`Fetching documents for vehicleId: ${vehicleId}`);
 
     const result = await pool.query(
       'SELECT * FROM documents WHERE vehicle_id = $1',
       [vehicleId]
     );
+
+    console.log(`Found ${result.rows.length} documents for vehicle ${vehicleId}`);
 
     const documents = result.rows.map(doc => {
       const { data: { publicUrl } } = supabase.storage

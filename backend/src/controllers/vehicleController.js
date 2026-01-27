@@ -10,7 +10,8 @@ exports.getAllVehicles = async (req, res) => {
       SELECT v.*, 
              c.name AS client_name, 
              c.phone AS client_phone,
-             (v.total_charges - v.money_paid) AS pending_amount
+             (v.total_charges - v.money_paid) AS pending_amount,
+             (SELECT COUNT(*) FROM documents WHERE vehicle_id = v.id) AS doc_count
       FROM vehicles v
       JOIN clients c ON v.client_id = c.id
       WHERE 1=1
