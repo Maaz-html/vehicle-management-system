@@ -1,11 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const documentController = require('../controllers/documentController');
-const upload = require('../middleware/upload');
+const multer = require('multer');
+const path = require('path');
 
-router.post('/upload', upload.array('documents', 10), documentController.uploadDocuments);
-router.get('/vehicle/:vehicle_id', documentController.getDocumentsByVehicle);
-router.get('/:id/download', documentController.downloadDocument);
-router.delete('/:id', documentController.deleteDocument);
+const {
+  uploadDocuments,
+  getDocumentsByVehicleId,
+  deleteDocument,
+} = require('../controllers/documentController');
+
+const upload = multer({
+  dest: path.join(__dirname, '../../uploads'),
+});
+
+router.post('/', upload.array('documents'), uploadDocuments);
+router.get('/:vehicleId', getDocumentsByVehicleId);
+router.delete('/:id', deleteDocument);
 
 module.exports = router;
