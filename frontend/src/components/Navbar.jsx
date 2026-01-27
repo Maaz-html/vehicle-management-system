@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
     const location = useLocation();
@@ -32,8 +33,8 @@ const Navbar = () => {
                         <Link
                             to="/"
                             className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/')
-                                    ? 'bg-white text-blue-600 font-semibold'
-                                    : 'hover:bg-blue-700'
+                                ? 'bg-white text-blue-600 font-semibold'
+                                : 'hover:bg-blue-700'
                                 }`}
                         >
                             Dashboard
@@ -41,8 +42,8 @@ const Navbar = () => {
                         <Link
                             to="/vehicles"
                             className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/vehicles') || isActive('/vehicles/new')
-                                    ? 'bg-white text-blue-600 font-semibold'
-                                    : 'hover:bg-blue-700'
+                                ? 'bg-white text-blue-600 font-semibold'
+                                : 'hover:bg-blue-700'
                                 }`}
                         >
                             Vehicles
@@ -50,8 +51,8 @@ const Navbar = () => {
                         <Link
                             to="/clients"
                             className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/clients')
-                                    ? 'bg-white text-blue-600 font-semibold'
-                                    : 'hover:bg-blue-700'
+                                ? 'bg-white text-blue-600 font-semibold'
+                                : 'hover:bg-blue-700'
                                 }`}
                         >
                             Clients
@@ -59,16 +60,30 @@ const Navbar = () => {
                         <Link
                             to="/reports"
                             className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/reports')
-                                    ? 'bg-white text-blue-600 font-semibold'
-                                    : 'hover:bg-blue-700'
+                                ? 'bg-white text-blue-600 font-semibold'
+                                : 'hover:bg-blue-700'
                                 }`}
                         >
                             Reports
                         </Link>
-                    </div>
+                    </Link>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                    <NotificationBell />
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            window.location.href = '/login';
+                        }}
+                        className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm"
+                    >
+                        Logout
+                    </button>
                 </div>
             </div>
-        </nav>
+        </div>
+        </nav >
     );
 };
 

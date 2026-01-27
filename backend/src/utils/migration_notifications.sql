@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    type VARCHAR(50) NOT NULL, -- 'STATUS_CHANGE', 'PAYMENT', etc.
+    message TEXT NOT NULL,
+    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

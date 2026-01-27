@@ -71,6 +71,8 @@ const DocumentUploader = ({ vehicleId }) => {
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
 
+    const [previewDoc, setPreviewDoc] = useState(null);
+
     return (
         <div className="space-y-4">
             {/* Upload Section */}
@@ -124,17 +126,29 @@ const DocumentUploader = ({ vehicleId }) => {
                                     <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <div className="flex-1">
-                                        <div className="font-medium text-gray-800">{doc.original_filename}</div>
+                                    <div className="flex-1 cursor-pointer" onClick={() => setPreviewDoc(doc)}>
+                                        <div className="font-medium text-gray-800 hover:text-blue-600">
+                                            {doc.original_filename || 'Document ' + doc.id}
+                                        </div>
                                         <div className="text-xs text-gray-500">
-                                            {formatFileSize(doc.file_size)} • {new Date(doc.uploaded_at).toLocaleString()}
+                                            {formatFileSize(doc.file_size || 0)} • {new Date(doc.uploaded_at).toLocaleString()}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex space-x-2">
                                     <button
-                                        onClick={() => downloadDocument(doc.id)}
+                                        onClick={() => setPreviewDoc(doc)}
+                                        className="text-gray-600 hover:text-blue-600"
+                                        title="Preview"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => window.open(doc.url, '_blank')}
                                         className="text-blue-600 hover:text-blue-800"
                                         title="Download"
                                     >
@@ -157,8 +171,38 @@ const DocumentUploader = ({ vehicleId }) => {
                     </div>
                 )}
             </div>
+
+            {/* Preview Modal */}
+            {previewDoc && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={() => setPreviewDoc(null)}>
+                    <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">{previewDoc.original_filename || 'Preview'}</h3>
+                            <button onClick={() => setPreviewDoc(null)} className="text-gray-500 hover:text-gray-700">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
+                            {previewDoc.original_filename?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                <img src={previewDoc.url} alt="Preview" className="max-w-full max-h-full object-contain" />
+                            ) : previewDoc.original_filename?.match(/\.pdf$/i) ? (
+                                <iframe src={previewDoc.url} className="w-full h-[60vh]" title="PDF Preview"></iframe>
+                            ) : (
+                                <div className="text-center">
+                                    <p className="mb-4 text-gray-600">Preview not available for this file type.</p>
+                                    <button onClick={() => window.open(previewDoc.url, '_blank')} className="btn btn-primary">
+                                        Download to View
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default DocumentUploader;
+

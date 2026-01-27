@@ -7,6 +7,21 @@ import {
     getVehicleById,
     uploadDocuments
 } from '../services/vehicleService';
+import DocumentUploader from './DocumentUploader';
+import MultiSelect from './MultiSelect';
+
+const WORK_TYPE_OPTIONS = [
+    'General Service',
+    'Oil Change',
+    'Brake Repair',
+    'Engine Diagnostics',
+    'Tire Rotation',
+    'Car Wash',
+    'Detailing',
+    'Body Work',
+    'AC Repair',
+    'Battery Replacement'
+];
 
 const AddVehicleForm = () => {
     const { id } = useParams();
@@ -26,7 +41,7 @@ const AddVehicleForm = () => {
         vehicle_number: '',
         vehicle_model: '',
         manufacturing_year: '',
-        work_type: '',
+        work_type: [],
         date: new Date().toISOString().split('T')[0],
         process_status: 'Pending',
         money_paid: 0,
@@ -49,7 +64,9 @@ const AddVehicleForm = () => {
             vehicle_number: vehicle.vehicle_number,
             vehicle_model: vehicle.vehicle_model || '',
             manufacturing_year: vehicle.manufacturing_year || '',
-            work_type: vehicle.work_type || '',
+            work_type: typeof vehicle.work_type === 'string' && vehicle.work_type.startsWith('[')
+                ? JSON.parse(vehicle.work_type)
+                : vehicle.work_type ? [vehicle.work_type] : [],
             date: vehicle.date,
             process_status: vehicle.process_status,
             money_paid: Number(vehicle.money_paid || 0),
@@ -191,7 +208,16 @@ const AddVehicleForm = () => {
                         <input name="vehicle_number" className="input" placeholder="Vehicle Number" value={formData.vehicle_number} onChange={handleChange} required />
                         <input name="vehicle_model" className="input" placeholder="Vehicle Model" value={formData.vehicle_model} onChange={handleChange} />
                         <input type="number" name="manufacturing_year" className="input" placeholder="Manufacturing Year" value={formData.manufacturing_year} onChange={handleChange} />
-                        <input name="work_type" className="input" placeholder="Work Type" value={formData.work_type} onChange={handleChange} />
+
+                        <div>
+                            <MultiSelect
+                                options={WORK_TYPE_OPTIONS}
+                                selected={formData.work_type}
+                                onChange={(selected) => setFormData({ ...formData, work_type: selected })}
+                                placeholder="Select Work Types"
+                            />
+                        </div>
+
                         <input type="date" name="date" className="input" value={formData.date} onChange={handleChange} required />
                         <select name="process_status" className="input" value={formData.process_status} onChange={handleChange}>
                             <option>Pending</option>
@@ -209,8 +235,14 @@ const AddVehicleForm = () => {
                         Pending Amount: ₹{pendingAmount.toFixed(2)}
                     </div>
 
-                    {!isEditMode && (
-                        <input type="file" multiple className="input" onChange={e => setDocuments(Array.from(e.target.files))} />
+                    {/* Documents */}
+                    {isEditMode ? (
+                        <DocumentUploader vehicleId={id} />
+                    ) : (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Documents</label>
+                            <input type="file" multiple className="input" onChange={e => setDocuments(Array.from(e.target.files))} />
+                        </div>
                     )}
 
                     <button className="btn btn-primary" disabled={submitting}>

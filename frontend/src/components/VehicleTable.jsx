@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllVehicles, deleteVehicle } from '../services/vehicleService';
+import InvoiceButton from './InvoiceButton';
 
 const VehicleTable = () => {
     const [vehicles, setVehicles] = useState([]);
@@ -56,13 +57,13 @@ const VehicleTable = () => {
     };
 
     const getPaymentRowClass = (vehicle) => {
-    const paid = Number(vehicle.money_paid || 0);
-    const total = Number(vehicle.total_charges || 0);
+        const paid = Number(vehicle.money_paid || 0);
+        const total = Number(vehicle.total_charges || 0);
 
-    if (paid === 0) return 'border-l-4 border-l-red-500 hover:bg-gray-50';
-    if (paid < total) return 'border-l-4 border-l-orange-500 hover:bg-gray-50';
-    return 'border-l-4 border-l-green-500 hover:bg-gray-50';
-};
+        if (paid === 0) return 'border-l-4 border-l-red-500 hover:bg-gray-50';
+        if (paid < total) return 'border-l-4 border-l-orange-500 hover:bg-gray-50';
+        return 'border-l-4 border-l-green-500 hover:bg-gray-50';
+    };
 
     if (loading) {
         return <div className="text-center py-8">Loading vehicles...</div>;
@@ -168,7 +169,19 @@ const VehicleTable = () => {
                                     <td className="px-4 py-3">{vehicle.client_phone}</td>
                                     <td className="px-4 py-3 font-medium uppercase">{vehicle.vehicle_number}</td>
                                     <td className="px-4 py-3">{vehicle.vehicle_model || '-'}</td>
-                                    <td className="px-4 py-3">{vehicle.work_type || '-'}</td>
+                                    <td className="px-4 py-3">
+                                        {(() => {
+                                            try {
+                                                const wt = vehicle.work_type;
+                                                if (!wt) return '-';
+                                                if (Array.isArray(wt)) return wt.join(', ');
+                                                if (wt.startsWith('[')) return JSON.parse(wt).join(', ');
+                                                return wt;
+                                            } catch (e) {
+                                                return vehicle.work_type;
+                                            }
+                                        })()}
+                                    </td>
                                     <td className="px-4 py-3">{new Date(vehicle.date).toLocaleDateString()}</td>
                                     <td className="px-4 py-3">
                                         <span className={getStatusBadgeClass(vehicle.process_status)}>
@@ -200,6 +213,9 @@ const VehicleTable = () => {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            <div className="ml-2">
+                                                <InvoiceButton vehicleId={vehicle.id} />
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

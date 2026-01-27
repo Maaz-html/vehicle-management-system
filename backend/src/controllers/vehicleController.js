@@ -1,4 +1,5 @@
 const pool = require('../utils/database');
+const { createNotification } = require('../controllers/notificationController');
 
 // Get all vehicles with filters
 exports.getAllVehicles = async (req, res) => {
@@ -114,7 +115,7 @@ exports.createVehicle = async (req, res) => {
       vehicle_number,
       vehicle_model,
       manufacturing_year,
-      work_type,
+      JSON.stringify(Array.isArray(work_type) ? work_type : [work_type]),
       date,
       process_status,
       money_paid,
@@ -122,6 +123,12 @@ exports.createVehicle = async (req, res) => {
     ]);
 
     const vehicleId = insertResult.rows[0].id;
+
+    await createNotification(
+      'VEHICLE_CREATED',
+      `New vehicle ${vehicle_number} registered.`,
+      vehicleId
+    );
 
     const fetchQuery = `
       SELECT v.*, 
@@ -189,7 +196,7 @@ exports.updateVehicle = async (req, res) => {
       vehicle_number,
       vehicle_model,
       manufacturing_year,
-      work_type,
+      JSON.stringify(Array.isArray(work_type) ? work_type : [work_type]),
       date,
       process_status,
       money_paid,
@@ -200,6 +207,15 @@ exports.updateVehicle = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle not found' });
     }
+
+    // Check for status change or creation to trigger notification
+    // Ideally we would compare with old status, but for now let's just notify on update
+    // To be more precise, we can fetch the old vehicle before update, but let's keep it simple
+    await createNotification(
+      'VEHICLE_UPDATE',
+      `Vehicle ${vehicle_number} details updated. Status: ${process_status}`,
+      id
+    );
 
     const vehicle = await pool.query(
       `

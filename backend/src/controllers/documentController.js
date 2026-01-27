@@ -16,8 +16,8 @@ const uploadDocuments = async (req, res) => {
 
     for (const file of req.files) {
       await pool.query(
-        'INSERT INTO documents (vehicle_id, file_path) VALUES ($1, $2)',
-        [vehicle_id, file.path]
+        'INSERT INTO documents (vehicle_id, file_path, original_filename, file_size) VALUES ($1, $2, $3, $4)',
+        [vehicle_id, file.filename, file.originalname, file.size]
       );
     }
 
@@ -37,7 +37,12 @@ const getDocumentsByVehicleId = async (req, res) => {
       [vehicleId]
     );
 
-    res.json(result.rows);
+    const documents = result.rows.map(doc => ({
+      ...doc,
+      url: `${req.protocol}://${req.get('host')}/uploads/${doc.file_path}`
+    }));
+
+    res.json(documents);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

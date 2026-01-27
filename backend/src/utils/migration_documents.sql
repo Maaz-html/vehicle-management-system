@@ -1,0 +1,2 @@
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS original_filename VARCHAR(255);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS file_size INTEGER;
