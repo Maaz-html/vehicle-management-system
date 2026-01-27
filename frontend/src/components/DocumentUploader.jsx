@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     getDocumentsByVehicle,
+    uploadDocuments,
     deleteDocument
 } from '../services/vehicleService';
 import config from '../config';

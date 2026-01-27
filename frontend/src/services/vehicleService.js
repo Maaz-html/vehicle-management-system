@@ -47,7 +47,7 @@ export const uploadDocuments = async (formData) => {
 };
 
 export const getDocumentsByVehicle = async (vehicleId) => {
-    const response = await api.get(`/documents/vehicle/${vehicleId}`);
+    const response = await api.get(`/documents/${vehicleId}`);
     return response.data;
 };
 

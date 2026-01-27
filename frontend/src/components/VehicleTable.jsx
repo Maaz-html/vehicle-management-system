@@ -231,10 +231,10 @@ const VehicleTable = () => {
 
                                             <button
                                                 onClick={() => setViewDocsVehicleId(vehicle.id)}
-                                                className="text-gray-600 hover:text-gray-800"
+                                                className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
                                                 title="View Documents"
                                             >
-                                                📄
+                                                <span>📂 Docs</span>
                                             </button>
 
                                             <InvoiceButton vehicleId={vehicle.id} />

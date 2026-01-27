@@ -1,6 +1,8 @@
 const pool = require('../utils/database');
 const supabase = require('../utils/supabaseClient');
 
+const BUCKET_NAME = process.env.SUPABASE_BUCKET || 'Documents';
+
 // Upload documents to Supabase Storage
 const uploadDocuments = async (req, res) => {
   try {
@@ -21,7 +23,7 @@ const uploadDocuments = async (req, res) => {
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('vehicle-documents')
+        .from(BUCKET_NAME)
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
           upsert: false
@@ -31,7 +33,7 @@ const uploadDocuments = async (req, res) => {
 
       // Get Public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('vehicle-documents')
+        .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
       // Save to Database
@@ -62,7 +64,7 @@ const getDocumentsByVehicleId = async (req, res) => {
 
     const documents = result.rows.map(doc => {
       const { data: { publicUrl } } = supabase.storage
-        .from('vehicle-documents')
+        .from(BUCKET_NAME)
         .getPublicUrl(doc.file_path);
 
       return {
@@ -95,7 +97,7 @@ const deleteDocument = async (req, res) => {
 
     // Delete from Supabase Storage
     const { error: storageError } = await supabase.storage
-      .from('vehicle-documents')
+      .from(BUCKET_NAME)
       .remove([document.file_path]);
 
     if (storageError) {
