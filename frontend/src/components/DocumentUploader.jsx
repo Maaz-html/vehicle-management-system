@@ -205,4 +205,6 @@ const DocumentUploader = ({ vehicleId }) => {
     );
 };
 
+export default DocumentUploader;
+
 
