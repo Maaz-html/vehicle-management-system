@@ -1,7 +1,7 @@
 const pool = require('../utils/database');
-const fs = require('fs');
+const supabase = require('../utils/supabaseClient');
 
-// Upload documents
+// Upload documents to Supabase Storage
 const uploadDocuments = async (req, res) => {
   try {
     const { vehicle_id } = req.body;
@@ -15,14 +15,37 @@ const uploadDocuments = async (req, res) => {
     }
 
     for (const file of req.files) {
+      const fileExt = file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${vehicle_id}/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('vehicle-documents')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('vehicle-documents')
+        .getPublicUrl(filePath);
+
+      // Save to Database
+      // Note: We store the relative path for easy deletion later, 
+      // but we return the public URL for the frontend.
       await pool.query(
         'INSERT INTO documents (vehicle_id, file_path, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-        [vehicle_id, file.filename, file.originalname, file.size]
+        [vehicle_id, filePath, file.originalname, file.size]
       );
     }
 
     res.status(201).json({ message: 'Documents uploaded successfully' });
   } catch (err) {
+    console.error('Supabase upload error:', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -37,10 +60,16 @@ const getDocumentsByVehicleId = async (req, res) => {
       [vehicleId]
     );
 
-    const documents = result.rows.map(doc => ({
-      ...doc,
-      url: `${req.protocol}://${req.get('host')}/uploads/${doc.file_path}`
-    }));
+    const documents = result.rows.map(doc => {
+      const { data: { publicUrl } } = supabase.storage
+        .from('vehicle-documents')
+        .getPublicUrl(doc.file_path);
+
+      return {
+        ...doc,
+        url: publicUrl
+      };
+    });
 
     res.json(documents);
   } catch (err) {
@@ -48,13 +77,13 @@ const getDocumentsByVehicleId = async (req, res) => {
   }
 };
 
-// Delete document
+// Delete document from Supabase and Database
 const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await pool.query(
-      'DELETE FROM documents WHERE id = $1 RETURNING *',
+      'SELECT * FROM documents WHERE id = $1',
       [id]
     );
 
@@ -62,10 +91,19 @@ const deleteDocument = async (req, res) => {
       return res.status(404).json({ error: 'Document not found' });
     }
 
-    const filePath = result.rows[0].file_path;
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    const document = result.rows[0];
+
+    // Delete from Supabase Storage
+    const { error: storageError } = await supabase.storage
+      .from('vehicle-documents')
+      .remove([document.file_path]);
+
+    if (storageError) {
+      console.warn('Storage deletion warning:', storageError);
     }
+
+    // Delete from Database
+    await pool.query('DELETE FROM documents WHERE id = $1', [id]);
 
     res.json({ message: 'Document deleted successfully' });
   } catch (err) {
