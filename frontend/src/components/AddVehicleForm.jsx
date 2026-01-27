@@ -218,7 +218,15 @@ const AddVehicleForm = () => {
                             />
                         </div>
 
-                        <input type="date" name="date" className="input" value={formData.date} onChange={handleChange} required />
+                        <input
+                            type="date"
+                            name="date"
+                            className="input"
+                            value={formData.date}
+                            onChange={handleChange}
+                            max={new Date().toISOString().split('T')[0]}
+                            required
+                        />
                         <select name="process_status" className="input" value={formData.process_status} onChange={handleChange}>
                             <option>Pending</option>
                             <option>Processing</option>

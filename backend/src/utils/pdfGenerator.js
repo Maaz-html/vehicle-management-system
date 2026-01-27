@@ -12,7 +12,7 @@ const generateInvoice = (vehicle, client, res) => {
         .fontSize(20)
         .text('INVOICE', 50, 57)
         .fontSize(10)
-        .text('Arantara Vehicle Management', 200, 50, { align: 'right' })
+        .text('Meer Enterprises', 200, 50, { align: 'right' })
         .text('123 Business Road', 200, 65, { align: 'right' })
         .text('City, Country, ZIP', 200, 80, { align: 'right' })
         .moveDown();
