@@ -1,123 +1,136 @@
-const db = require('../utils/database');
+const pool = require('../utils/database');
 
 // Get all clients
-exports.getAllClients = (req, res) => {
-    db.all('SELECT * FROM clients ORDER BY name', [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json(rows);
-    });
+exports.getAllClients = async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM clients ORDER BY name'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Get client by ID
-exports.getClientById = (req, res) => {
+exports.getClientById = async (req, res) => {
+  try {
     const { id } = req.params;
-    db.get('SELECT * FROM clients WHERE id = ?', [id], (err, row) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        if (!row) {
-            return res.status(404).json({ error: 'Client not found' });
-        }
-        res.json(row);
-    });
+
+    const result = await pool.query(
+      'SELECT * FROM clients WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Create new client
-exports.createClient = (req, res) => {
+exports.createClient = async (req, res) => {
+  try {
     const { name, phone } = req.body;
 
     if (!name || !phone) {
-        return res.status(400).json({ error: 'Name and phone are required' });
+      return res.status(400).json({ error: 'Name and phone are required' });
     }
 
     // Validate phone number (exactly 10 digits)
     if (!/^\d{10}$/.test(phone)) {
-        return res.status(400).json({ error: 'Phone number must be exactly 10 digits' });
+      return res.status(400).json({
+        error: 'Phone number must be exactly 10 digits'
+      });
     }
 
     // Check if client already exists
-    db.get('SELECT * FROM clients WHERE name = ? AND phone = ?', [name, phone], (err, existingClient) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+    const existing = await pool.query(
+      'SELECT * FROM clients WHERE name = $1 AND phone = $2',
+      [name, phone]
+    );
 
-        if (existingClient) {
-            return res.json(existingClient); // Return existing client
-        }
+    if (existing.rows.length > 0) {
+      return res.json(existing.rows[0]);
+    }
 
-        // Create new client
-        db.run(
-            'INSERT INTO clients (name, phone) VALUES (?, ?)',
-            [name, phone],
-            function (err) {
-                if (err) {
-                    return res.status(500).json({ error: err.message });
-                }
-                res.status(201).json({
-                    id: this.lastID,
-                    name,
-                    phone
-                });
-            }
-        );
-    });
+    // Create new client
+    const result = await pool.query(
+      'INSERT INTO clients (name, phone) VALUES ($1, $2) RETURNING *',
+      [name, phone]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Update client
-exports.updateClient = (req, res) => {
+exports.updateClient = async (req, res) => {
+  try {
     const { id } = req.params;
     const { name, phone } = req.body;
 
     if (!name || !phone) {
-        return res.status(400).json({ error: 'Name and phone are required' });
+      return res.status(400).json({ error: 'Name and phone are required' });
     }
 
-    // Validate phone number (exactly 10 digits)
     if (!/^\d{10}$/.test(phone)) {
-        return res.status(400).json({ error: 'Phone number must be exactly 10 digits' });
+      return res.status(400).json({
+        error: 'Phone number must be exactly 10 digits'
+      });
     }
 
-    db.run(
-        'UPDATE clients SET name = ?, phone = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-        [name, phone, id],
-        function (err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'Client not found' });
-            }
-            res.json({ id, name, phone });
-        }
+    const result = await pool.query(
+      `UPDATE clients
+       SET name = $1, phone = $2, updated_at = NOW()
+       WHERE id = $3
+       RETURNING *`,
+      [name, phone, id]
     );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Delete client
-exports.deleteClient = (req, res) => {
+exports.deleteClient = async (req, res) => {
+  try {
     const { id } = req.params;
 
-    // Check if client has vehicles
-    db.get('SELECT COUNT(*) as count FROM vehicles WHERE client_id = ?', [id], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+    const vehicleCheck = await pool.query(
+      'SELECT COUNT(*) FROM vehicles WHERE client_id = $1',
+      [id]
+    );
 
-        if (result.count > 0) {
-            return res.status(400).json({
-                error: 'Cannot delete client with associated vehicles. Delete vehicles first.'
-            });
-        }
+    if (parseInt(vehicleCheck.rows[0].count) > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete client with associated vehicles. Delete vehicles first.'
+      });
+    }
 
-        db.run('DELETE FROM clients WHERE id = ?', [id], function (err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'Client not found' });
-            }
-            res.json({ message: 'Client deleted successfully' });
-        });
-    });
+    const result = await pool.query(
+      'DELETE FROM clients WHERE id = $1',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    res.json({ message: 'Client deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

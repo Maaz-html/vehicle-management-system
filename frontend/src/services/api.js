@@ -1,13 +1,7 @@
-import axios from 'axios';
-
-const API_BASE_URL = "https://vehicle-backend-4lgp.onrender.com/api";
-
+import axios from "axios";
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: "https://vehicle-backend-4lgp.onrender.com/api",
 });
 
 export default api;
