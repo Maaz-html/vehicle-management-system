@@ -66,23 +66,22 @@ const Navbar = () => {
                         >
                             Reports
                         </Link>
-                    </Link>
-                </div>
+                    </div>
 
-                <div className="flex items-center space-x-4">
-                    <NotificationBell />
-                    <button
-                        onClick={() => {
-                            localStorage.removeItem('token');
-                            window.location.href = '/login';
-                        }}
-                        className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm"
-                    >
-                        Logout
-                    </button>
+                    <div className="flex items-center space-x-4">
+                        <NotificationBell />
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem('token');
+                                window.location.href = '/login';
+                            }}
+                            className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
         </nav >
     );
 };
