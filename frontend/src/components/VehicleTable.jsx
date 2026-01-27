@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllVehicles, deleteVehicle } from '../services/vehicleService';
 import InvoiceButton from './InvoiceButton';
+import DocumentUploader from './DocumentUploader';
 
 const VehicleTable = () => {
     const [vehicles, setVehicles] = useState([]);
@@ -10,6 +11,8 @@ const VehicleTable = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [sortBy, setSortBy] = useState('date');
     const [sortOrder, setSortOrder] = useState('DESC');
+    const [viewDocsVehicleId, setViewDocsVehicleId] = useState(null);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,6 +22,7 @@ const VehicleTable = () => {
     const fetchVehicles = async () => {
         try {
             setLoading(true);
+
             const params = {};
             if (search) params.search = search;
             if (statusFilter) params.status = statusFilter;
@@ -26,32 +30,32 @@ const VehicleTable = () => {
             params.sortOrder = sortOrder;
 
             const data = await getAllVehicles(params);
-            setVehicles(data);
-            setLoading(false);
+            setVehicles(data || []);
         } catch (error) {
             console.error('Error fetching vehicles:', error);
+        } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this vehicle?')) {
-            try {
-                await deleteVehicle(id);
-                fetchVehicles();
-            } catch (error) {
-                alert('Error deleting vehicle: ' + error.message);
-            }
+        if (!window.confirm('Are you sure you want to delete this vehicle?')) return;
+
+        try {
+            await deleteVehicle(id);
+            fetchVehicles();
+        } catch (error) {
+            alert('Error deleting vehicle: ' + error.message);
         }
     };
 
     const getStatusBadgeClass = (status) => {
         const statusMap = {
-            'Pending': 'badge-pending',
-            'Processing': 'badge-processing',
-            'Completed': 'badge-completed',
+            Pending: 'badge-pending',
+            Processing: 'badge-processing',
+            Completed: 'badge-completed',
             'On Hold': 'badge-on-hold',
-            'Cancelled': 'badge-cancelled'
+            Cancelled: 'badge-cancelled',
         };
         return `badge ${statusMap[status] || 'badge-pending'}`;
     };
@@ -64,6 +68,8 @@ const VehicleTable = () => {
         if (paid < total) return 'border-l-4 border-l-orange-500 hover:bg-gray-50';
         return 'border-l-4 border-l-green-500 hover:bg-gray-50';
     };
+
+    const formatMoney = (value) => `₹${Number(value || 0).toFixed(2)}`;
 
     if (loading) {
         return <div className="text-center py-8">Loading vehicles...</div>;
@@ -144,30 +150,34 @@ const VehicleTable = () => {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-gray-100 border-b">
-                                <th className="px-4 py-3 text-left font-semibold">ID</th>
-                                <th className="px-4 py-3 text-left font-semibold">Client</th>
-                                <th className="px-4 py-3 text-left font-semibold">Phone</th>
-                                <th className="px-4 py-3 text-left font-semibold">Vehicle #</th>
-                                <th className="px-4 py-3 text-left font-semibold">Model</th>
-                                <th className="px-4 py-3 text-left font-semibold">Work Type</th>
-                                <th className="px-4 py-3 text-left font-semibold">Date</th>
-                                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                                <th className="px-4 py-3 text-right font-semibold">Paid</th>
-                                <th className="px-4 py-3 text-right font-semibold">Total</th>
-                                <th className="px-4 py-3 text-right font-semibold">Pending</th>
-                                <th className="px-4 py-3 text-center font-semibold">Actions</th>
+                                <th className="px-4 py-3 text-left">ID</th>
+                                <th className="px-4 py-3 text-left">Client</th>
+                                <th className="px-4 py-3 text-left">Phone</th>
+                                <th className="px-4 py-3 text-left">Vehicle #</th>
+                                <th className="px-4 py-3 text-left">Model</th>
+                                <th className="px-4 py-3 text-left">Work Type</th>
+                                <th className="px-4 py-3 text-left">Date</th>
+                                <th className="px-4 py-3 text-left">Status</th>
+                                <th className="px-4 py-3 text-right">Paid</th>
+                                <th className="px-4 py-3 text-right">Total</th>
+                                <th className="px-4 py-3 text-right">Pending</th>
+                                <th className="px-4 py-3 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {vehicles.map((vehicle) => (
                                 <tr
                                     key={vehicle.id}
-                                    className={`border-b transition-colors ${getPaymentRowClass(vehicle)}`}
+                                    className={`border-b ${getPaymentRowClass(vehicle)}`}
                                 >
-                                    <td className="px-4 py-3 font-medium">VEH-{String(vehicle.id).padStart(3, '0')}</td>
+                                    <td className="px-4 py-3 font-medium">
+                                        VEH-{String(vehicle.id).padStart(3, '0')}
+                                    </td>
                                     <td className="px-4 py-3">{vehicle.client_name}</td>
                                     <td className="px-4 py-3">{vehicle.client_phone}</td>
-                                    <td className="px-4 py-3 font-medium uppercase">{vehicle.vehicle_number}</td>
+                                    <td className="px-4 py-3 uppercase font-medium">
+                                        {vehicle.vehicle_number}
+                                    </td>
                                     <td className="px-4 py-3">{vehicle.vehicle_model || '-'}</td>
                                     <td className="px-4 py-3">
                                         {(() => {
@@ -175,23 +185,31 @@ const VehicleTable = () => {
                                                 const wt = vehicle.work_type;
                                                 if (!wt) return '-';
                                                 if (Array.isArray(wt)) return wt.join(', ');
-                                                if (wt.startsWith('[')) return JSON.parse(wt).join(', ');
+                                                if (typeof wt === 'string' && wt.trim().startsWith('[')) {
+                                                    return JSON.parse(wt).join(', ');
+                                                }
                                                 return wt;
-                                            } catch (e) {
+                                            } catch {
                                                 return vehicle.work_type;
                                             }
                                         })()}
                                     </td>
-                                    <td className="px-4 py-3">{new Date(vehicle.date).toLocaleDateString()}</td>
+                                    <td className="px-4 py-3">
+                                        {new Date(vehicle.date).toLocaleDateString()}
+                                    </td>
                                     <td className="px-4 py-3">
                                         <span className={getStatusBadgeClass(vehicle.process_status)}>
                                             {vehicle.process_status}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-right font-medium">₹{parseFloat(vehicle.money_paid || 0).toFixed(2)}</td>
-                                    <td className="px-4 py-3 text-right font-medium">₹{parseFloat(vehicle.total_charges || 0).toFixed(2)}</td>
+                                    <td className="px-4 py-3 text-right font-medium">
+                                        {formatMoney(vehicle.money_paid)}
+                                    </td>
+                                    <td className="px-4 py-3 text-right font-medium">
+                                        {formatMoney(vehicle.total_charges)}
+                                    </td>
                                     <td className="px-4 py-3 text-right font-medium text-red-600">
-                                        ₹{parseFloat(vehicle.pending_amount || 0).toFixed(2)}
+                                        {formatMoney(vehicle.pending_amount)}
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex justify-center space-x-2">
@@ -200,22 +218,26 @@ const VehicleTable = () => {
                                                 className="text-blue-600 hover:text-blue-800"
                                                 title="Edit"
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
+                                                ✏️
                                             </button>
+
                                             <button
                                                 onClick={() => handleDelete(vehicle.id)}
                                                 className="text-red-600 hover:text-red-800"
                                                 title="Delete"
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
+                                                🗑️
                                             </button>
-                                            <div className="ml-2">
-                                                <InvoiceButton vehicleId={vehicle.id} />
-                                            </div>
+
+                                            <button
+                                                onClick={() => setViewDocsVehicleId(vehicle.id)}
+                                                className="text-gray-600 hover:text-gray-800"
+                                                title="View Documents"
+                                            >
+                                                📄
+                                            </button>
+
+                                            <InvoiceButton vehicleId={vehicle.id} />
                                         </div>
                                     </td>
                                 </tr>
@@ -224,6 +246,35 @@ const VehicleTable = () => {
                     </table>
                 )}
             </div>
+
+            {/* Document Viewer Modal */}
+            {viewDocsVehicleId && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+                    onClick={() => setViewDocsVehicleId(null)}
+                >
+                    <div
+                        className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50">
+                            <h3 className="text-lg font-semibold">Vehicle Documents</h3>
+                            <button
+                                onClick={() => setViewDocsVehicleId(null)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                ✖
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-auto p-4">
+                            <DocumentUploader
+                                vehicleId={viewDocsVehicleId}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

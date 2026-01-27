@@ -5,7 +5,7 @@ import {
 } from '../services/vehicleService';
 import config from '../config';
 
-const DocumentUploader = ({ vehicleId }) => {
+const DocumentUploader = ({ vehicleId, readOnly = false }) => {
     const [documents, setDocuments] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -37,7 +37,11 @@ const DocumentUploader = ({ vehicleId }) => {
 
         setUploading(true);
         try {
-            await uploadDocuments(vehicleId, selectedFiles);
+            const fd = new FormData();
+            fd.append('vehicle_id', vehicleId);
+            selectedFiles.forEach(file => fd.append('documents', file));
+
+            await uploadDocuments(fd);
             alert('Documents uploaded successfully!');
             setSelectedFiles([]);
             document.getElementById('fileInput').value = '';
@@ -82,34 +86,36 @@ const DocumentUploader = ({ vehicleId }) => {
     return (
         <div className="space-y-4">
             {/* Upload Section */}
-            <div className="card bg-blue-50">
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">Upload Documents</h3>
-                <div className="space-y-3">
-                    <input
-                        id="fileInput"
-                        type="file"
-                        className="input"
-                        onChange={handleFileChange}
-                        multiple
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-                    />
-                    <p className="text-xs text-gray-500">
-                        Accepted: PDF, Images, Word, Excel (Max 10MB per file)
-                    </p>
-                    {selectedFiles.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                            {selectedFiles.length} file(s) selected
-                        </div>
-                    )}
-                    <button
-                        onClick={handleUpload}
-                        disabled={uploading || selectedFiles.length === 0}
-                        className="btn btn-primary"
-                    >
-                        {uploading ? 'Uploading...' : 'Upload Files'}
-                    </button>
+            {!readOnly && (
+                <div className="card bg-blue-50">
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Upload Documents</h3>
+                    <div className="space-y-3">
+                        <input
+                            id="fileInput"
+                            type="file"
+                            className="input"
+                            onChange={handleFileChange}
+                            multiple
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                        />
+                        <p className="text-xs text-gray-500">
+                            Accepted: PDF, Images, Word, Excel (Max 10MB per file)
+                        </p>
+                        {selectedFiles.length > 0 && (
+                            <div className="text-sm text-gray-600">
+                                {selectedFiles.length} file(s) selected
+                            </div>
+                        )}
+                        <button
+                            onClick={handleUpload}
+                            disabled={uploading || selectedFiles.length === 0}
+                            className="btn btn-primary"
+                        >
+                            {uploading ? 'Uploading...' : 'Upload Files'}
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Documents List */}
             <div className="card">
@@ -162,15 +168,17 @@ const DocumentUploader = ({ vehicleId }) => {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                         </svg>
                                     </button>
-                                    <button
-                                        onClick={() => handleDelete(doc.id)}
-                                        className="text-red-600 hover:text-red-800"
-                                        title="Delete"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
+                                    {!readOnly && (
+                                        <button
+                                            onClick={() => handleDelete(doc.id)}
+                                            className="text-red-600 hover:text-red-800"
+                                            title="Delete"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
