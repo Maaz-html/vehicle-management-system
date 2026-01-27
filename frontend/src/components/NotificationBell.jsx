@@ -83,7 +83,7 @@ const NotificationBell = () => {
                     <div className="px-4 py-3 border-b flex justify-between items-center">
                         <span className="text-sm font-semibold text-gray-800">Notifications</span>
                         {unreadCount > 0 && (
-                            <button onClick={markAllRead} className="text-xs text-blue-600 hover:text-blue-800">
+                            <button onClick={handleMarkAllRead} className="text-xs text-blue-600 hover:text-blue-800">
                                 Mark all read
                             </button>
                         )}

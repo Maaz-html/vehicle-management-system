@@ -148,7 +148,8 @@ const AddVehicleForm = () => {
             alert(isEditMode ? 'Vehicle updated successfully' : 'Vehicle added successfully');
             navigate('/vehicles');
         } catch (err) {
-            alert(err?.response?.data?.error || 'Error saving vehicle');
+            const errorMsg = err?.response?.data?.error || err.message || 'Unknown error';
+            alert('Save Failed: ' + errorMsg);
         } finally {
             setSubmitting(false);
         }

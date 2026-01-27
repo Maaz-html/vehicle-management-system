@@ -49,7 +49,8 @@ const DocumentUploader = ({ vehicleId, readOnly = false }) => {
             fetchDocuments();
         } catch (error) {
             console.error('Error uploading documents:', error);
-            alert('Error uploading documents');
+            const errorMsg = error?.response?.data?.error || error.message || 'Unknown error';
+            alert('Upload Failed: ' + errorMsg);
         } finally {
             setUploading(false);
         }
