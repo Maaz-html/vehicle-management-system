@@ -4,20 +4,34 @@ import VehicleTable from '../components/VehicleTable';
 
 const Dashboard = () => {
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-                <Link to="/vehicles/new" className="btn btn-primary">
-                    + Add New Vehicle
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-bold text-white tracking-tight">Executive Dashboard</h1>
+                    <p className="text-zinc-500 mt-1">Operational overview of Meer Enterprises.</p>
+                </div>
+                <Link to="/vehicles/new" className="btn btn-primary px-8 shadow-xl shadow-blue-600/20">
+                    + Register New Vehicle
                 </Link>
             </div>
 
-            <PaymentSummary />
+            <section>
+                <div className="flex items-center space-x-2 mb-6">
+                    <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+                    <h2 className="text-xl font-bold text-white">Financial Summary</h2>
+                </div>
+                <PaymentSummary />
+            </section>
 
-            <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Recent Vehicles</h2>
-                <VehicleTable />
-            </div>
+            <section>
+                <div className="flex items-center space-x-2 mb-6">
+                    <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                    <h2 className="text-xl font-bold text-white">Recent Activity</h2>
+                </div>
+                <div className="card !p-0 overflow-hidden border-zinc-800/80">
+                    <VehicleTable />
+                </div>
+            </section>
         </div>
     );
 };
