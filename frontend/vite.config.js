@@ -10,10 +10,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Vehicle Management System',
-        short_name: 'VMS',
-        description: 'Vehicle Management System for tracking vehicles and invoices',
-        theme_color: '#ffffff',
+        name: 'Meer Enterprises Registry',
+        short_name: 'Meer',
+        description: 'Executive Fleet Management System',
+        theme_color: '#0A0A0B',
         icons: [
           {
             src: 'pwa-192x192.png',
