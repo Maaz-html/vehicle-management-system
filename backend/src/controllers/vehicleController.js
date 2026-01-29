@@ -94,7 +94,8 @@ exports.createVehicle = async (req, res) => {
       date,
       process_status = 'Pending',
       money_paid = 0,
-      total_charges = 0
+      total_charges = 0,
+      notes = ''
     } = req.body;
 
     if (!client_id || !vehicle_number || !date) {
@@ -112,9 +113,9 @@ exports.createVehicle = async (req, res) => {
     const insertQuery = `
       INSERT INTO vehicles (
         client_id, vehicle_number, vehicle_model, manufacturing_year,
-        work_type, date, process_status, money_paid, total_charges
+        work_type, date, process_status, money_paid, total_charges, notes
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING id
     `;
 
@@ -127,7 +128,8 @@ exports.createVehicle = async (req, res) => {
       date,
       process_status,
       money_paid,
-      total_charges
+      total_charges,
+      notes
     ]);
 
     const vehicleId = insertResult.rows[0].id;
@@ -168,7 +170,8 @@ exports.updateVehicle = async (req, res) => {
       date,
       process_status,
       money_paid,
-      total_charges
+      total_charges,
+      notes
     } = req.body;
 
     if (!client_id || !vehicle_number || !date) {
@@ -194,8 +197,9 @@ exports.updateVehicle = async (req, res) => {
         process_status=$7,
         money_paid=$8,
         total_charges=$9,
+        notes=$10,
         updated_at=NOW()
-      WHERE id=$10
+      WHERE id=$11
       RETURNING id
     `;
 
@@ -209,6 +213,7 @@ exports.updateVehicle = async (req, res) => {
       process_status,
       money_paid,
       total_charges,
+      notes,
       id
     ]);
 

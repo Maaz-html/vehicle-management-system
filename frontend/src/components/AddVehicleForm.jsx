@@ -47,7 +47,8 @@ const AddVehicleForm = () => {
         date: new Date().toISOString().split('T')[0],
         process_status: 'Pending',
         money_paid: 0,
-        total_charges: 0
+        total_charges: 0,
+        notes: ''
     });
 
     useEffect(() => {
@@ -72,7 +73,8 @@ const AddVehicleForm = () => {
             date: vehicle.date ? new Date(vehicle.date).toISOString().split('T')[0] : '',
             process_status: vehicle.process_status,
             money_paid: Number(vehicle.money_paid || 0),
-            total_charges: Number(vehicle.total_charges || 0)
+            total_charges: Number(vehicle.total_charges || 0),
+            notes: vehicle.notes || ''
         });
         setSelectedClientId(vehicle.client_id);
     };
@@ -240,10 +242,10 @@ const AddVehicleForm = () => {
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-xs text-emerald-500/70 font-medium ml-1">Additional Notes</label>
+                                    <label className="text-xs text-emerald-500/70 font-medium ml-1">Client Comments</label>
                                     <textarea
                                         className="input !border-emerald-500/20 !bg-emerald-500/5 min-h-[80px]"
-                                        placeholder="Optional client instructions or background..."
+                                        placeholder="Optional client background/instructions..."
                                         value={newClientComments}
                                         onChange={e => setNewClientComments(e.target.value)}
                                     />
@@ -318,6 +320,17 @@ const AddVehicleForm = () => {
                                     <option>On Hold</option>
                                     <option>Cancelled</option>
                                 </select>
+                            </div>
+
+                            <div className="md:col-span-2 space-y-2">
+                                <label className="text-xs text-zinc-500 font-medium ml-1 uppercase tracking-wider">Additional Job Notes / Comments</label>
+                                <textarea
+                                    name="notes"
+                                    className="input min-h-[100px] py-3 placeholder:text-zinc-600"
+                                    placeholder="Enter any specific instructions, damages noted, or special requirements for this vehicle..."
+                                    value={formData.notes}
+                                    onChange={handleChange}
+                                />
                             </div>
                         </div>
                     </div>

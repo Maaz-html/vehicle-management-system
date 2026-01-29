@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
     process_status VARCHAR(50) DEFAULT 'Pending',
     money_paid DECIMAL(10, 2) DEFAULT 0,
     total_charges DECIMAL(10, 2) DEFAULT 0,
+    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
