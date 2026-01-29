@@ -34,6 +34,7 @@ const AddVehicleForm = () => {
     const [showNewClientForm, setShowNewClientForm] = useState(false);
     const [newClientName, setNewClientName] = useState('');
     const [newClientPhone, setNewClientPhone] = useState('');
+    const [newClientComments, setNewClientComments] = useState('');
 
     const [documents, setDocuments] = useState([]);
     const [submitting, setSubmitting] = useState(false);
@@ -91,12 +92,17 @@ const AddVehicleForm = () => {
             alert('Enter valid client name and 10-digit phone');
             return;
         }
-        const client = await createClient({ name: newClientName, phone: newClientPhone });
+        const client = await createClient({
+            name: newClientName,
+            phone: newClientPhone,
+            comments: newClientComments
+        });
         setClients([...clients, client]);
         setSelectedClientId(client.id);
         setShowNewClientForm(false);
         setNewClientName('');
         setNewClientPhone('');
+        setNewClientComments('');
     };
 
     const handleChange = (e) => {
@@ -231,6 +237,15 @@ const AddVehicleForm = () => {
                                         placeholder="10 digit phone"
                                         value={newClientPhone}
                                         onChange={e => setNewClientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                    />
+                                </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-xs text-emerald-500/70 font-medium ml-1">Additional Notes</label>
+                                    <textarea
+                                        className="input !border-emerald-500/20 !bg-emerald-500/5 min-h-[80px]"
+                                        placeholder="Optional client instructions or background..."
+                                        value={newClientComments}
+                                        onChange={e => setNewClientComments(e.target.value)}
                                     />
                                 </div>
                                 <button type="button" onClick={handleAddNewClient} className="btn btn-success col-span-2 py-3">

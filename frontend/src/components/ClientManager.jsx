@@ -5,6 +5,7 @@ const ClientManager = () => {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [editingClient, setEditingClient] = useState(null);
     const [formData, setFormData] = useState({ name: '', phone: '', comments: '' });
     const [expandedClientId, setExpandedClientId] = useState(null);
     const [clientVehicles, setClientVehicles] = useState({});
@@ -253,7 +254,7 @@ const ClientManager = () => {
                                                 </p>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <div className="flex justify-center items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                                                <div className="flex justify-center items-center space-x-3 transition-opacity" onClick={e => e.stopPropagation()}>
                                                     <button
                                                         onClick={() => handleEdit(client)}
                                                         className="p-2 bg-zinc-800 hover:bg-blue-600 rounded-lg text-zinc-400 hover:text-white transition-all shadow-lg shadow-black/20"
@@ -311,8 +312,8 @@ const ClientManager = () => {
                                                                             <div className="flex justify-between items-start mb-2">
                                                                                 <span className="text-sm font-mono font-bold text-white tracking-widest">{v.vehicle_number}</span>
                                                                                 <span className={`text-[10px] font-bold uppercase transition-colors px-2 py-0.5 rounded-full ${v.process_status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                                                        v.process_status === 'Processing' ? 'bg-blue-500/10 text-blue-500' :
-                                                                                            'bg-zinc-800 text-zinc-400'
+                                                                                    v.process_status === 'Processing' ? 'bg-blue-500/10 text-blue-500' :
+                                                                                        'bg-zinc-800 text-zinc-400'
                                                                                     }`}>
                                                                                     {v.process_status}
                                                                                 </span>
