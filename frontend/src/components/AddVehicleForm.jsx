@@ -68,7 +68,7 @@ const AddVehicleForm = () => {
             work_type: typeof vehicle.work_type === 'string' && vehicle.work_type.startsWith('[')
                 ? JSON.parse(vehicle.work_type)
                 : vehicle.work_type ? [vehicle.work_type] : [],
-            date: vehicle.date,
+            date: vehicle.date ? new Date(vehicle.date).toISOString().split('T')[0] : '',
             process_status: vehicle.process_status,
             money_paid: Number(vehicle.money_paid || 0),
             total_charges: Number(vehicle.total_charges || 0)
@@ -284,6 +284,7 @@ const AddVehicleForm = () => {
                                     className="input"
                                     value={formData.date}
                                     onChange={handleChange}
+                                    max={new Date().toISOString().split('T')[0]}
                                     required
                                 />
                             </div>

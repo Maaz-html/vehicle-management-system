@@ -232,7 +232,7 @@ const VehicleTable = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <div className="flex justify-center items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex justify-center items-center space-x-3 transition-opacity">
                                             <button
                                                 onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}
                                                 className="p-2 bg-zinc-800 hover:bg-blue-600 rounded-lg text-zinc-400 hover:text-white transition-all"
