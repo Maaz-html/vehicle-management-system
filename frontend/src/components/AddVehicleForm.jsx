@@ -34,7 +34,6 @@ const AddVehicleForm = () => {
     const [showNewClientForm, setShowNewClientForm] = useState(false);
     const [newClientName, setNewClientName] = useState('');
     const [newClientPhone, setNewClientPhone] = useState('');
-    const [newClientComments, setNewClientComments] = useState('');
 
     const [documents, setDocuments] = useState([]);
     const [submitting, setSubmitting] = useState(false);
@@ -113,8 +112,7 @@ const AddVehicleForm = () => {
         try {
             const client = await createClient({
                 name: newClientName,
-                phone: newClientPhone,
-                comments: newClientComments
+                phone: newClientPhone
             });
 
             // Add only if not already in list to avoid duplicates
@@ -128,7 +126,6 @@ const AddVehicleForm = () => {
             setShowNewClientForm(false);
             setNewClientName('');
             setNewClientPhone('');
-            setNewClientComments('');
         } catch (error) {
             console.error('Error adding client:', error);
             const errorMsg = error.response?.data?.error || error.message || 'Failed to initialize client profile';
@@ -270,15 +267,6 @@ const AddVehicleForm = () => {
                                         placeholder="10 digit phone"
                                         value={newClientPhone}
                                         onChange={e => setNewClientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                    />
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-xs text-emerald-500/70 font-medium ml-1">Client Comments</label>
-                                    <textarea
-                                        className="input !border-emerald-500/20 !bg-emerald-500/5 min-h-[80px]"
-                                        placeholder="Optional client background/instructions..."
-                                        value={newClientComments}
-                                        onChange={e => setNewClientComments(e.target.value)}
                                     />
                                 </div>
                                 <button
@@ -469,8 +457,8 @@ const AddVehicleForm = () => {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

@@ -59,10 +59,9 @@ exports.createClient = async (req, res) => {
     }
 
     // Create new client
-    const { comments = '' } = req.body;
     const result = await pool.query(
-      'INSERT INTO clients (name, phone, comments) VALUES ($1, $2, $3) RETURNING *',
-      [name, phone, comments]
+      'INSERT INTO clients (name, phone) VALUES ($1, $2) RETURNING *',
+      [name, phone]
     );
 
     res.status(201).json(result.rows[0]);
@@ -89,10 +88,10 @@ exports.updateClient = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE clients
-       SET name = $1, phone = $2, comments = $3, updated_at = NOW()
-       WHERE id = $4
+       SET name = $1, phone = $2, updated_at = NOW()
+       WHERE id = $3
        RETURNING *`,
-      [name, phone, req.body.comments || '', id]
+      [name, phone, id]
     );
 
     if (result.rows.length === 0) {

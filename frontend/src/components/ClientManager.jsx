@@ -6,7 +6,7 @@ const ClientManager = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingClient, setEditingClient] = useState(null);
-    const [formData, setFormData] = useState({ name: '', phone: '', comments: '' });
+    const [formData, setFormData] = useState({ name: '', phone: '' });
     const [expandedClientId, setExpandedClientId] = useState(null);
     const [clientVehicles, setClientVehicles] = useState({});
     const [fetchingVehiclesId, setFetchingVehiclesId] = useState(null);
@@ -48,7 +48,7 @@ const ClientManager = () => {
             } else {
                 await createClient(formData);
             }
-            setFormData({ name: '', phone: '', comments: '' });
+            setFormData({ name: '', phone: '' });
             setShowForm(false);
             setEditingClient(null);
             fetchClients();
@@ -63,7 +63,7 @@ const ClientManager = () => {
 
     const handleEdit = (client) => {
         setEditingClient(client);
-        setFormData({ name: client.name, phone: client.phone, comments: client.comments || '' });
+        setFormData({ name: client.name, phone: client.phone });
         setShowForm(true);
     };
 
@@ -81,7 +81,7 @@ const ClientManager = () => {
     const handleCancel = () => {
         setShowForm(false);
         setEditingClient(null);
-        setFormData({ name: '', phone: '', comments: '' });
+        setFormData({ name: '', phone: '' });
     };
 
     const handlePhoneChange = (e) => {
@@ -179,17 +179,6 @@ const ClientManager = () => {
                                 />
                             </div>
 
-                            <div className="md:col-span-2 space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">
-                                    Additional Notes / Comments
-                                </label>
-                                <textarea
-                                    className="input min-h-[100px] py-3"
-                                    placeholder="Enter any specific client instructions or background information..."
-                                    value={formData.comments}
-                                    onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
-                                />
-                            </div>
                         </div>
 
                         <div className="flex space-x-4 pt-2">
@@ -300,13 +289,6 @@ const ClientManager = () => {
                                             <tr className="bg-zinc-950/40">
                                                 <td colSpan="4" className="px-10 py-6 border-l-2 border-blue-600/30">
                                                     <div className="space-y-6">
-                                                        {client.comments && (
-                                                            <div className="bg-blue-500/[0.03] border border-blue-500/10 p-4 rounded-xl">
-                                                                <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Internal Notes</h4>
-                                                                <p className="text-sm text-zinc-300 italic">{client.comments}</p>
-                                                            </div>
-                                                        )}
-
                                                         <div>
                                                             <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center">
                                                                 Associated Assets
@@ -361,7 +343,7 @@ const ClientManager = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
