@@ -38,6 +38,7 @@ const AddVehicleForm = () => {
 
     const [documents, setDocuments] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [addingClient, setAddingClient] = useState(false);
 
     const [formData, setFormData] = useState({
         vehicle_number: '',
@@ -57,26 +58,34 @@ const AddVehicleForm = () => {
     }, [id]);
 
     const fetchClients = async () => {
-        const data = await getAllClients();
-        setClients(data);
+        try {
+            const data = await getAllClients();
+            setClients(data);
+        } catch (error) {
+            console.error('Error fetching clients:', error);
+        }
     };
 
     const fetchVehicle = async () => {
-        const vehicle = await getVehicleById(id);
-        setFormData({
-            vehicle_number: vehicle.vehicle_number,
-            vehicle_model: vehicle.vehicle_model || '',
-            manufacturing_year: vehicle.manufacturing_year || '',
-            work_type: typeof vehicle.work_type === 'string' && vehicle.work_type.startsWith('[')
-                ? JSON.parse(vehicle.work_type)
-                : vehicle.work_type ? [vehicle.work_type] : [],
-            date: vehicle.date ? new Date(vehicle.date).toISOString().split('T')[0] : '',
-            process_status: vehicle.process_status,
-            money_paid: Number(vehicle.money_paid || 0),
-            total_charges: Number(vehicle.total_charges || 0),
-            notes: vehicle.notes || ''
-        });
-        setSelectedClientId(vehicle.client_id);
+        try {
+            const vehicle = await getVehicleById(id);
+            setFormData({
+                vehicle_number: vehicle.vehicle_number,
+                vehicle_model: vehicle.vehicle_model || '',
+                manufacturing_year: vehicle.manufacturing_year || '',
+                work_type: typeof vehicle.work_type === 'string' && vehicle.work_type.startsWith('[')
+                    ? JSON.parse(vehicle.work_type)
+                    : vehicle.work_type ? [vehicle.work_type] : [],
+                date: vehicle.date ? new Date(vehicle.date).toISOString().split('T')[0] : '',
+                process_status: vehicle.process_status,
+                money_paid: Number(vehicle.money_paid || 0),
+                total_charges: Number(vehicle.total_charges || 0),
+                notes: vehicle.notes || ''
+            });
+            setSelectedClientId(vehicle.client_id);
+        } catch (error) {
+            console.error('Error fetching vehicle:', error);
+        }
     };
 
     const handleClientChange = (e) => {
@@ -90,21 +99,43 @@ const AddVehicleForm = () => {
     };
 
     const handleAddNewClient = async () => {
-        if (!newClientName || !/^\d{10}$/.test(newClientPhone)) {
-            alert('Enter valid client name and 10-digit phone');
+        if (!newClientName.trim()) {
+            alert('Please enter a valid client name');
             return;
         }
-        const client = await createClient({
-            name: newClientName,
-            phone: newClientPhone,
-            comments: newClientComments
-        });
-        setClients([...clients, client]);
-        setSelectedClientId(client.id);
-        setShowNewClientForm(false);
-        setNewClientName('');
-        setNewClientPhone('');
-        setNewClientComments('');
+
+        if (!/^\d{10}$/.test(newClientPhone)) {
+            alert('Phone number must be exactly 10 digits');
+            return;
+        }
+
+        setAddingClient(true);
+        try {
+            const client = await createClient({
+                name: newClientName,
+                phone: newClientPhone,
+                comments: newClientComments
+            });
+
+            // Add only if not already in list to avoid duplicates
+            setClients(prev => {
+                const exists = prev.some(c => c.id === client.id);
+                if (exists) return prev;
+                return [...prev, client];
+            });
+
+            setSelectedClientId(client.id);
+            setShowNewClientForm(false);
+            setNewClientName('');
+            setNewClientPhone('');
+            setNewClientComments('');
+        } catch (error) {
+            console.error('Error adding client:', error);
+            const errorMsg = error.response?.data?.error || error.message || 'Failed to initialize client profile';
+            alert('Error: ' + errorMsg);
+        } finally {
+            setAddingClient(false);
+        }
     };
 
     const handleChange = (e) => {
@@ -250,8 +281,23 @@ const AddVehicleForm = () => {
                                         onChange={e => setNewClientComments(e.target.value)}
                                     />
                                 </div>
-                                <button type="button" onClick={handleAddNewClient} className="btn btn-success col-span-2 py-3">
-                                    Finalize Client Profile
+                                <button
+                                    type="button"
+                                    onClick={handleAddNewClient}
+                                    className="btn btn-success col-span-2 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={addingClient}
+                                >
+                                    {addingClient ? (
+                                        <span className="flex items-center justify-center space-x-2">
+                                            <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Initializing Portfolio...</span>
+                                        </span>
+                                    ) : (
+                                        'Finalize Client Profile'
+                                    )}
                                 </button>
                             </div>
                         )}
