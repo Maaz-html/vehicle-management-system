@@ -21,7 +21,8 @@ const WORK_TYPE_OPTIONS = [
     'HSRP',
     'Insurance',
     'Mobile No. Update',
-    'NOC'
+    'NOC',
+    'Challan'
 ];
 
 const AddVehicleForm = () => {

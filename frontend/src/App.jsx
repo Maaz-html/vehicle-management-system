@@ -7,6 +7,7 @@ import Vehicles from './pages/Vehicles';
 import Clients from './pages/Clients';
 import AddVehicleForm from './components/AddVehicleForm';
 import Login from './pages/Login';
+import ClientReport from './pages/ClientReport';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -25,6 +26,7 @@ function App() {
           <Route path="/vehicles/new" element={<AddVehicleForm />} />
           <Route path="/vehicles/edit/:id" element={<AddVehicleForm />} />
           <Route path="/clients" element={<Clients />} />
+          <Route path="/reports/client/:id" element={<ClientReport />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

@@ -4,7 +4,7 @@ const { createNotification } = require('../controllers/notificationController');
 // Get all vehicles with filters
 exports.getAllVehicles = async (req, res) => {
   try {
-    const { search, status, client_id, sortBy = 'date', sortOrder = 'DESC' } = req.query;
+    const { search, status, client_id, startDate, endDate, sortBy = 'date', sortOrder = 'DESC' } = req.query;
 
     let query = `
       SELECT v.*, 
@@ -38,6 +38,18 @@ exports.getAllVehicles = async (req, res) => {
     if (client_id) {
       query += ` AND v.client_id = $${idx}`;
       params.push(client_id);
+      idx++;
+    }
+
+    // Date range filter
+    if (startDate) {
+      query += ` AND v.date >= $${idx}`;
+      params.push(startDate);
+      idx++;
+    }
+    if (endDate) {
+      query += ` AND v.date <= $${idx}`;
+      params.push(endDate);
       idx++;
     }
 

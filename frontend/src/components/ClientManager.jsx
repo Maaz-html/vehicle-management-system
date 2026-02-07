@@ -290,12 +290,24 @@ const ClientManager = () => {
                                                 <td colSpan="4" className="px-10 py-6 border-l-2 border-blue-600/30">
                                                     <div className="space-y-6">
                                                         <div>
-                                                            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center">
-                                                                Associated Assets
-                                                                <span className="ml-2 px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">
-                                                                    {clientVehicles[client.id] ? clientVehicles[client.id].length : 0}
-                                                                </span>
-                                                            </h4>
+                                                            <div className="flex justify-between items-center mb-4">
+                                                                <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center">
+                                                                    Associated Assets
+                                                                    <span className="ml-2 px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">
+                                                                        {clientVehicles[client.id] ? clientVehicles[client.id].length : 0}
+                                                                    </span>
+                                                                </h4>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        window.open(`/reports/client/${client.id}`, '_blank');
+                                                                    }}
+                                                                    className="text-[10px] font-bold text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors flex items-center gap-1.5 bg-blue-500/5 px-3 py-1.5 rounded-lg border border-blue-500/10"
+                                                                >
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                                    View Full Report
+                                                                </button>
+                                                            </div>
 
                                                             {fetchingVehiclesId === client.id ? (
                                                                 <div className="flex items-center space-x-2 text-zinc-500 py-4">
