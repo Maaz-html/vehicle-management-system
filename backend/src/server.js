@@ -38,6 +38,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/export', require('./routes/export'));
 
 // Health check
 app.get('/api/health', (req, res) => {
