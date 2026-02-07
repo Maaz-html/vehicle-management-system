@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import VehicleTable from '../components/VehicleTable';
+import config from '../config';
 
 const Vehicles = () => {
     return (
@@ -10,7 +11,7 @@ const Vehicles = () => {
                     <button
                         onClick={() => {
                             const token = localStorage.getItem('token');
-                            window.open(`http://localhost:5000/api/export/excel?token=${token}`, '_blank');
+                            window.open(`${config.API_URL}/export/excel?token=${token}`, '_blank');
                         }}
                         className="btn bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold px-6 py-2.5 rounded-xl border border-zinc-700/50 flex items-center gap-2 transition-all shadow-lg"
                     >
